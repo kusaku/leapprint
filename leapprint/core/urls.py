@@ -16,24 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.conf.urls import url, include
 from rest_framework import routers
+from django.conf import settings
+from django.conf.urls.static import static
 
 from app import views
 
-# router = routers.DefaultRouter(trailing_slash=False)
-# router.register(r'users', views.UserViewSet)
-# router.register(r'groups', views.GroupViewSet)
-# router.register(r'orders', views.OrderViewList)
-# router.register(r'^orders/(?P<pk>[0-9]+)/$', views.OrderViewDetail)
+router = routers.DefaultRouter(trailing_slash=False)
+router.register(r'orders', views.OrderViewSet)
+router.register(r'settings', views.SettingViewSet)
+router.register(r'files', views.FileViewSet)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', views.api_root),
-    # url(r'^', include(router.urls)),
-    # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
-    # url(r'^orders2/$', views.OrderViewSet2.as_view()),
-    url(r'^orders/$', views.OrderViewList.as_view(), name='orders-list'),
-    url(r'^orders/(?P<pk>[0-9]+)/$', views.OrderViewDetail.as_view())
-]
-
+    url(r'^', include(router.urls)),
+] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

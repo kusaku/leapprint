@@ -124,6 +124,10 @@ STATIC_ROOT = os.path.abspath(os.path.join(__file__, os.pardir, os.pardir, os.pa
 
 STATIC_URL = '/static/'
 
+MEDIA_ROOT = os.path.abspath(os.path.join(__file__, os.pardir, os.pardir, os.pardir, 'uploads'))
+
+MEDIA_URL = '/uploads/'
+
 REST_FRAMEWORK = {
     # 'DEFAULT_PERMISSION_CLASSES': ('rest_framework.permissions.IsAdminUser',),
     # 'PAGE_SIZE': 10
