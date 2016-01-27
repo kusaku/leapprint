@@ -24,7 +24,6 @@ from app import views
 router = routers.DefaultRouter(trailing_slash=False)
 router.register(r'orders', views.OrderViewSet)
 router.register(r'settings', views.SettingViewSet)
-router.register(r'files', views.FileViewSet)
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),

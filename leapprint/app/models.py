@@ -1,8 +1,8 @@
+# Create your models here.
 from __future__ import unicode_literals
 
-# Create your models here.
-
 from django.db import models
+
 
 STATUSCHOICES = (
     ('new', 'New'),
@@ -10,13 +10,13 @@ STATUSCHOICES = (
     ('printed', 'Printed'),
 )
 
-
 class Order(models.Model):
     order_id = models.CharField(max_length=32, unique=True)
     status = models.CharField(max_length=16, choices=STATUSCHOICES, default=STATUSCHOICES[0][0])
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
     data = models.TextField()
+    file = models.FileField(blank=True, null=True)
 
     class Meta:
         ordering = ('created',)
@@ -25,11 +25,3 @@ class Order(models.Model):
 class Setting(models.Model):
     key = models.CharField(max_length=32, unique=True)
     value = models.TextField()
-
-
-class File(models.Model):
-    created = models.DateTimeField(auto_now_add=True)
-    path = models.FileField()
-
-    class Meta:
-        ordering = ('created',)

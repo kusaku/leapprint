@@ -3,18 +3,20 @@ import time
 
 from rest_framework.serializers import ModelSerializer, DateTimeField
 
-from models import Order, Setting, File
+from models import Order, Setting
 
 
 class TimestampField(DateTimeField):
-
     def to_internal_value(self, value):
-        return self.enforce_timezone(datetime.datetime.fromtimestamp(
-            int(value) / 1000
-        ))
+        try:
+            return self.enforce_timezone(datetime.datetime.fromtimestamp(
+                float(value) / 1000
+            ))
+        except ValueError:
+            return None
 
     def to_representation(self, value):
-        return time.mktime(value.timetuple()) * 1000
+        return '%d' % (time.mktime(value.timetuple()) * 1000)
 
 
 class OrderSerializer(ModelSerializer):
@@ -23,17 +25,10 @@ class OrderSerializer(ModelSerializer):
 
     class Meta:
         model = Order
-        fields = ('order_id', 'status', 'data', 'created', 'modified')
+        fields = ('order_id', 'status', 'data', 'created', 'modified', 'file')
 
 
 class SettingSerializer(ModelSerializer):
     class Meta:
         model = Setting
         fields = ('key', 'value')
-
-
-class FileSerializer(ModelSerializer):
-    created = TimestampField(read_only=True)
-
-    class Meta:
-        model = File

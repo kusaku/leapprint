@@ -2,19 +2,16 @@
 
 from django.contrib import admin
 
-from models import Order, Setting, File
+from models import Order, Setting
 
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('order_id', 'status', 'data', 'created', 'modified', 'file')
+    list_filter = ('order_id', 'status', 'data', 'created', 'modified', 'file')
 
 
 @admin.register(Setting)
 class SettingAdmin(admin.ModelAdmin):
-    pass
-
-
-@admin.register(File)
-class FileAdmin(admin.ModelAdmin):
-    pass
+    list_display = ('key', 'value')
+    list_filter = ('key', 'value')
