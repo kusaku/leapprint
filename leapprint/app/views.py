@@ -12,6 +12,9 @@ from models import Order, Setting, File
 
 
 class OrderViewSet(ModelViewSet):
+
+    lookup_field = 'order_id'
+
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 

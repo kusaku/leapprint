@@ -12,7 +12,7 @@ STATUSCHOICES = (
 
 
 class Order(models.Model):
-    order_id = models.CharField(max_length=32, primary_key=True)
+    order_id = models.CharField(max_length=32, unique=True)
     status = models.CharField(max_length=16, choices=STATUSCHOICES, default=STATUSCHOICES[0][0])
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -23,7 +23,7 @@ class Order(models.Model):
 
 
 class Setting(models.Model):
-    key = models.CharField(max_length=32, primary_key=True)
+    key = models.CharField(max_length=32, unique=True)
     value = models.TextField()
 
 
@@ -33,5 +33,3 @@ class File(models.Model):
 
     class Meta:
         ordering = ('created',)
-
-

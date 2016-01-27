@@ -6,7 +6,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -17,7 +16,9 @@ class Migration(migrations.Migration):
             name='Order',
             fields=[
                 ('order_id', models.CharField(max_length=32, primary_key=True, serialize=False)),
-                ('status', models.CharField(choices=[('new', 'New'), ('processed', 'Processed'), ('printed', 'Printed')], default='new', max_length=16)),
+                ('status',
+                 models.CharField(choices=[('new', 'New'), ('processed', 'Processed'), ('printed', 'Printed')],
+                                  default='new', max_length=16)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('modified', models.DateTimeField(auto_now=True)),
                 ('data', models.TextField()),
