@@ -27,10 +27,11 @@ from app import views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'^$', views.api_root),
     # url(r'^', include(router.urls)),
     # url(r'^api-auth/', include('rest_framework.urls', namespace='rest_framework'))
     # url(r'^orders2/$', views.OrderViewSet2.as_view()),
-    url(r'^orders/$', views.OrderViewList.as_view()),
+    url(r'^orders/$', views.OrderViewList.as_view(), name='orders-list'),
     url(r'^orders/(?P<pk>[0-9]+)/$', views.OrderViewDetail.as_view())
 ]
 

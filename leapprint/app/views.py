@@ -1,16 +1,22 @@
-
-from rest_framework import viewsets
-from rest_framework import generics
 from rest_framework import status
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
+from rest_framework.decorators import api_view
+from rest_framework.reverse import reverse
+
 from django.http.response import Http404
 
 from serializers import OrderSerializer
 from models import Order
 
 
-class OrderViewList(generics.ListCreateAPIView):
+@api_view(('GET',))
+def api_root(request, format=None):
+    return Response({'orders': reverse('orders-list', request=request, format=format)})
+
+
+class OrderViewList(ListCreateAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
@@ -36,7 +42,7 @@ class OrderViewList(generics.ListCreateAPIView):
             return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-class OrderViewDetail(generics.RetrieveUpdateDestroyAPIView):
+class OrderViewDetail(RetrieveUpdateDestroyAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
