@@ -22,5 +22,16 @@ class Order(models.Model):
         ordering = ('created',)
 
 
-    def save(self, *args, **kwargs):
-        super(Order, self).save(*args, **kwargs)
+class Setting(models.Model):
+    key = models.CharField(max_length=32, primary_key=True)
+    value = models.TextField()
+
+
+class File(models.Model):
+    created = models.DateTimeField(auto_now_add=True)
+    path = models.FileField()
+
+    class Meta:
+        ordering = ('created',)
+
+
