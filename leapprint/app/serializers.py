@@ -1,3 +1,4 @@
+import datetime
 import time
 
 from rest_framework.serializers import ModelSerializer, DateTimeField
@@ -6,12 +7,18 @@ from models import Order, Setting, File
 
 
 class TimestampField(DateTimeField):
+
+    def to_internal_value(self, value):
+        return self.enforce_timezone(datetime.datetime.fromtimestamp(
+            int(value) / 1000
+        ))
+
     def to_representation(self, value):
-        return time.mktime(value.timetuple())
+        return time.mktime(value.timetuple()) * 1000
 
 
 class OrderSerializer(ModelSerializer):
-    created = TimestampField(read_only=True)
+    created = TimestampField(read_only=False)
     modified = TimestampField(read_only=True)
 
     class Meta:
