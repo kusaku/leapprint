@@ -1,26 +1,21 @@
 from rest_framework import status
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from rest_framework.decorators import api_view
-from rest_framework.reverse import reverse
+from rest_framework.mixins import ListModelMixin
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
+from rest_framework.parsers import FormParser, MultiPartParser
 
 from django.http.response import Http404
 
-from serializers import OrderSerializer
-from models import Order
+from serializers import OrderSerializer, SettingSerializer, FileSerializer
+from models import Order, Setting, File
 
 
-@api_view(('GET',))
-def api_root(request, format=None):
-    return Response({'orders': reverse('orders-list', request=request, format=format)})
-
-
-class OrderViewList(ListCreateAPIView):
+class OrderViewSet(ModelViewSet):
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
-    def post(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         try:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -41,14 +36,9 @@ class OrderViewList(ListCreateAPIView):
             }
             return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
-
-class OrderViewDetail(RetrieveUpdateDestroyAPIView):
-    queryset = Order.objects.all()
-    serializer_class = OrderSerializer
-
-    def get(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):
         try:
-            return super(OrderViewDetail, self).get(request, *args, **kwargs)
+            return super(OrderViewSet, self).retrieve(request, *args, **kwargs)
 
         except Http404 as e:
             data = {
@@ -57,7 +47,7 @@ class OrderViewDetail(RetrieveUpdateDestroyAPIView):
             }
             return Response(data, status=status.HTTP_404_NOT_FOUND)
 
-    def put(self, request, *args, **kwargs):
+    def update(self, request, *args, **kwargs):
         try:
             partial = kwargs.pop('partial', False)
             instance = self.get_object()
@@ -86,9 +76,9 @@ class OrderViewDetail(RetrieveUpdateDestroyAPIView):
             }
             return Response(data, status=status.HTTP_201_CREATED)
 
-    def delete(self, request, *args, **kwargs):
+    def destroy(self, request, *args, **kwargs):
         try:
-            return super(OrderViewDetail, self).delete(request, *args, **kwargs)
+            return super(OrderViewSet, self).destroy(request, *args, **kwargs)
 
         except Http404 as e:
             data = {
@@ -96,3 +86,46 @@ class OrderViewDetail(RetrieveUpdateDestroyAPIView):
                 'error': e.message,
             }
             return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+
+class SettingViewSet(ListModelMixin, GenericViewSet):
+    queryset = Setting.objects.all()
+    serializer_class = SettingSerializer
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+
+        data = {item['key']: item['value'] for item in serializer.data}
+
+        return Response(data)
+
+
+class FileViewSet(ModelViewSet):
+    queryset = File.objects.all()
+    serializer_class = FileSerializer
+    parser_classes = (MultiPartParser, FormParser)
+
+    def perform_create(self, serializer):
+        serializer.save(path=self.request.data.get('path'))
+
+    def create(self, request, *args, **kwargs):
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+
+        except ValidationError as e:
+            data = {
+                'status': 0,
+                'error': ' '.join(['%s: %s' % (k, ', '.join(v)) for k, v in e.detail.items()]),
+            }
+            return Response(data, status=e.status_code)
+
+        else:
+            headers = self.get_success_headers(serializer.data)
+            data = {
+                'status': 1,
+                'file': serializer.data
+            }
+            return Response(data, status=status.HTTP_201_CREATED, headers=headers)
