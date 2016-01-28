@@ -26,10 +26,18 @@ class BlobFileField(FileField):
         return base64.encodestring(bindata)
 
     def to_representation(self, value):
-        try:
-            return base64.decodestring(value)
-        except Exception:
-            return None
+        from views import OrderFileViewSet
+
+        if value:
+            if isinstance(self.context.get('view'), OrderFileViewSet):
+                try:
+                    return base64.decodestring(value)
+                except Exception as e:
+                    return '[error decoding base64]'
+            else:
+                return '[blob data]'
+
+        return None
 
 
 class OrderSerializer(ModelSerializer):
