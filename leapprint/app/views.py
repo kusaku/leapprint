@@ -9,6 +9,11 @@ from django.http.response import Http404
 from serializers import OrderSerializer, SettingSerializer
 from models import Order, Setting
 
+def get_file_link(request, order):
+    if order.get('file', None):
+        kwargs = {'order_id': order.get('order_id', None)}
+        return reverse('order-file', request=request, kwargs=kwargs)
+    return None
 
 class OrderViewSet(ModelViewSet):
     lookup_field = 'order_id'
@@ -30,11 +35,13 @@ class OrderViewSet(ModelViewSet):
             return Response(data, status=e.status_code)
 
         else:
-            headers = self.get_success_headers(serializer.data)
+            order = serializer.data
+            order['file'] = get_file_link(request, order)
             data = {
                 'status': 1,
-                'order': serializer.data
+                'order': order
             }
+            headers = self.get_success_headers(serializer.data)
             return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
     def list(self, request, *args, **kwargs):
@@ -43,9 +50,8 @@ class OrderViewSet(ModelViewSet):
 
         data = serializer.data
 
-        for item in data:
-            kwargs = {'order_id': item['order_id']}
-            item['file'] = reverse('order-file', request=request, kwargs=kwargs)
+        for order in data:
+            order['file'] = get_file_link(request, order)
 
         return Response(data)
 
@@ -56,8 +62,7 @@ class OrderViewSet(ModelViewSet):
 
             data = serializer.data
 
-            kwargs = {'order_id': data['order_id']}
-            data['file'] = reverse('order-file', request=request, kwargs=kwargs)
+            data['file'] = get_file_link(request, data)
 
             return Response(data)
 
@@ -92,9 +97,11 @@ class OrderViewSet(ModelViewSet):
             return Response(data, status.HTTP_404_NOT_FOUND)
 
         else:
+            order = serializer.data
+            order['file'] = get_file_link(request, order)
             data = {
                 'status': 1,
-                'order': serializer.data
+                'order': order
             }
             return Response(data, status=status.HTTP_201_CREATED)
 

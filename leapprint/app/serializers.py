@@ -23,21 +23,13 @@ class TimestampField(DateTimeField):
 class BlobFileField(FileField):
     def to_internal_value(self, data):
         bindata = data.file.read()
-        strdata = base64.encodestring(bindata)
-
-        return strdata
+        return base64.encodestring(bindata)
 
     def to_representation(self, value):
-        from views import OrderFileViewSet
-        if value:
-            if isinstance(self.context.get('view'), OrderFileViewSet):
-                try:
-                    return base64.decodestring(value)
-                except Exception as e:
-                    return '[%s]' % e.message
-            else:
-                return '[binary data]'
-        return None
+        try:
+            return base64.decodestring(value)
+        except Exception:
+            return None
 
 
 class OrderSerializer(ModelSerializer):

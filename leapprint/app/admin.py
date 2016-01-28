@@ -7,8 +7,8 @@ from models import Order, Setting
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('order_id', 'status', 'data', 'created', 'modified', 'file')
-    list_filter = ('order_id', 'status', 'data', 'created', 'modified', 'file')
+    list_display = ('order_id', 'status', 'data', 'created', 'modified')
+    list_filter = ('order_id', 'status', 'data', 'created', 'modified')
 
 
 @admin.register(Setting)
