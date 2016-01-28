@@ -28,12 +28,16 @@ class BlobFileField(FileField):
         return strdata
 
     def to_representation(self, value):
-        if not value:
-            return None
-        try:
-            return base64.decodestring(value)
-        except Exception as e:
-            return e.message
+        from views import OrderFileViewSet
+        if value:
+            if isinstance(self.context.get('view'), OrderFileViewSet):
+                try:
+                    return base64.decodestring(value)
+                except Exception as e:
+                    return '[%s]' % e.message
+            else:
+                return '[binary data]'
+        return None
 
 
 class OrderSerializer(ModelSerializer):

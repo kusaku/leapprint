@@ -1,4 +1,5 @@
 from rest_framework import status, renderers
+from rest_framework.reverse import reverse
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
@@ -39,18 +40,26 @@ class OrderViewSet(ModelViewSet):
     def list(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
         serializer = self.get_serializer(queryset, many=True)
-        from rest_framework.reverse import reverse
-        for data in serializer.data:
-            kwargs = {'order_id': data['order_id']}
-            data['file'] = reverse('order-file', request=request, kwargs=kwargs)
-        return Response(serializer.data)
+
+        data = serializer.data
+
+        for item in data:
+            kwargs = {'order_id': item['order_id']}
+            item['file'] = reverse('order-file', request=request, kwargs=kwargs)
+
+        return Response(data)
 
     def retrieve(self, request, *args, **kwargs):
         try:
             instance = self.get_object()
             serializer = self.get_serializer(instance)
-            serializer.data['file'] = '[binary data]'
-            return Response(serializer.data)
+
+            data = serializer.data
+
+            kwargs = {'order_id': data['order_id']}
+            data['file'] = reverse('order-file', request=request, kwargs=kwargs)
+
+            return Response(data)
 
 
         except Http404 as e:
