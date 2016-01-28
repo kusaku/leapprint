@@ -1,7 +1,7 @@
-from rest_framework import status
+from rest_framework import status, renderers
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
-from rest_framework.mixins import ListModelMixin
+from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.viewsets import GenericViewSet, ModelViewSet
 from django.http.response import Http404
 
@@ -36,9 +36,22 @@ class OrderViewSet(ModelViewSet):
             }
             return Response(data, status=status.HTTP_201_CREATED, headers=headers)
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        serializer = self.get_serializer(queryset, many=True)
+        from rest_framework.reverse import reverse
+        for data in serializer.data:
+            kwargs = {'order_id': data['order_id']}
+            data['file'] = reverse('order-file', request=request, kwargs=kwargs)
+        return Response(serializer.data)
+
     def retrieve(self, request, *args, **kwargs):
         try:
-            return super(OrderViewSet, self).retrieve(request, *args, **kwargs)
+            instance = self.get_object()
+            serializer = self.get_serializer(instance)
+            serializer.data['file'] = '[binary data]'
+            return Response(serializer.data)
+
 
         except Http404 as e:
             data = {
@@ -86,6 +99,28 @@ class OrderViewSet(ModelViewSet):
                 'error': e.message,
             }
             return Response(data, status=status.HTTP_404_NOT_FOUND)
+
+
+class PNGRenderer(renderers.BaseRenderer):
+    media_type = 'image/png'
+    format = 'png'
+    charset = None
+    render_style = 'binary'
+
+    def render(self, data, media_type=None, renderer_context=None):
+        return data
+
+
+class OrderFileViewSet(RetrieveModelMixin, GenericViewSet):
+    lookup_field = 'order_id'
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    renderer_classes = (PNGRenderer,)
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data.get('file'))
 
 
 class SettingViewSet(ListModelMixin, GenericViewSet):

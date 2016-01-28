@@ -28,6 +28,7 @@ router.register(r'settings', views.SettingViewSet)
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^', include(router.urls)),
+    url(r'^orders/(?P<order_id>[a-zA-Z0-9]+)/file$', views.OrderFileViewSet.as_view({'get':'retrieve'}), name='order-file'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 

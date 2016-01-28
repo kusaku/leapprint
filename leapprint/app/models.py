@@ -15,8 +15,8 @@ class Order(models.Model):
     status = models.CharField(max_length=16, choices=STATUSCHOICES, default=STATUSCHOICES[0][0])
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
-    data = models.TextField()
-    file = models.FileField(blank=True, null=True)
+    data = models.TextField(blank=True, null=True)
+    file = models.TextField(blank=True, null=True)
 
     class Meta:
         ordering = ('created',)
